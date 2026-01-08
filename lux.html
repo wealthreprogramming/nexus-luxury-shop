@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Luxury | Boutique Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background: #000000;
+            color: #f5f5f5;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Luxury Gold Gradient */
+        .gold-gradient {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4E5C2 50%, #D4AF37 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .text-gold {
+            background: linear-gradient(135deg, #D4AF37, #F4E5C2, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        /* Premium Glass Effect */
+        .glass-luxury {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Premium Card Hover */
+        .luxury-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .luxury-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .luxury-card:hover::before {
+            left: 100%;
+        }
+        
+        .luxury-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(212, 175, 55, 0.3);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
+        
+        /* Hero Background */
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+        }
+        
+        /* Luxury Button */
+        .btn-luxury {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        .btn-luxury::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .btn-luxury:hover::before {
+            left: 100%;
+        }
+        
+        .btn-luxury:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 24px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 25px 50px rgba(212, 175, 55, 0.2);
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            z-index: 2000;
+            display: none;
+            animation: toastSlide 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .toast.show {
+            display: block;
+        }
+        
+        .toast.success {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.95), rgba(244, 229, 194, 0.95));
+            color: #000;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+        
+        @keyframes toastSlide {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Inputs */
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #f5f5f5;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #D4AF37;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        
+        /* Product Image Effect */
+        .product-image {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            filter: brightness(0.95) contrast(1.1);
+        }
+        
+        .product-image:hover img {
+            transform: scale(1.15);
+            filter: brightness(1) contrast(1.2);
+        }
+        
+        .product-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0) 0%, rgba(212, 175, 55, 0.2) 100%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .product-image:hover::after {
+            opacity: 1;
+        }
+        
+        /* Badge */
+        .luxury-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(135deg, #D4AF37, #F4E5C2);
+            color: #000;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* Navigation */
+        .nav-scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Filter Button */
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #D4AF37, #F4E5C2);
+            color: #000;
+            border-color: transparent;
+            font-weight: 600;
+        }
+        
+        /* Quantity Buttons */
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .quantity-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+            transform: scale(1.05);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #D4AF37, #F4E5C2);
+            border-radius: 10px;
+        }
+        
+        /* Premium Decorative Elements */
+        .decorative-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+        }
+        
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Luxury Section Divider */
+        .section-divider {
+            position: relative;
+            height: 100px;
+            background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.05), transparent);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 py-6 px-6 md:px-12 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#home" class="flex items-center gap-3">
+                <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center">
+                    <i class="fas fa-gem text-black"></i>
+                </div>
+                <span class="text-2xl font-bold text-gold">NEXUS LUXURY</span>
+            </a>
+            <div class="hidden md:flex space-x-10 text-sm font-medium tracking-wider">
+                <a href="#home" class="hover:text-gold transition">ACCUEIL</a>
+                <a href="#products" class="hover:text-gold transition">COLLECTION</a>
+                <a href="#about" class="hover:text-gold transition">À PROPOS</a>
+                <a href="#contact" class="hover:text-gold transition">CONTACT</a>
+            </div>
+            <div class="flex items-center space-x-6">
+                <button id="search-btn" class="text-lg hover:text-gold transition">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="cart-btn" class="relative text-lg hover:text-gold transition">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </button>
+                <button id="mobile-menu-btn" class="md:hidden text-lg">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center px-6 pt-20">
+        <canvas id="hero-canvas"></canvas>
+        <div class="hero-overlay"></div>
+        <div class="max-w-6xl mx-auto text-center z-10">
+            <div class="floating mb-8">
+                <i class="fas fa-crown text-6xl text-gold"></i>
+            </div>
+            <h1 class="text-6xl md:text-8xl font-bold mb-6 leading-tight">
+                L'Excellence<br/>
+                <span class="text-gold">Redéfinie</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto font-light tracking-wide">
+                Découvrez une collection exclusive de produits premium, sélectionnés avec soin pour une expérience d'exception
+            </p>
+            <button onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})" class="px-10 py-5 gold-gradient rounded-full font-bold text-lg text-black btn-luxury">
+                DÉCOUVRIR LA COLLECTION
+            </button>
+            <div class="mt-16 flex justify-center gap-12 text-sm">
+                <div>
+                    <div class="text-3xl font-bold text-gold mb-2">10K+</div>
+                    <div class="text-gray-400 tracking-wider">CLIENTS SATISFAITS</div>
+                </div>
+                <div class="h-16 w-px bg-gradient-to-b from-transparent via-gold to-transparent"></div>
+                <div>
+                    <div class="text-3xl font-bold text-gold mb-2">500+</div>
+                    <div class="text-gray-400 tracking-wider">PRODUITS PREMIUM</div>
+                </div>
+                <div class="h-16 w-px bg-gradient-to-b from-transparent via-gold to-transparent"></div>
+                <div>
+                    <div class="text-3xl font-bold text-gold mb-2">24/7</div>
+                    <div class="text-gray-400 tracking-wider">SERVICE CLIENT</div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-gold"></i>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Featured Categories -->
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl md:text-6xl font-bold mb-4">Collections <span class="text-gold">Exclusives</span></h2>
+                <div class="decorative-line w-32 mx-auto my-6"></div>
+                <p class="text-gray-400 text-lg font-light">Chaque pièce raconte une histoire d'excellence</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="glass-luxury luxury-card rounded-3xl p-8 text-center cursor-pointer">
+                    <i class="fas fa-laptop text-6xl text-gold mb-6"></i>
+                    <h3 class="text-2xl font-bold mb-3">Technologie</h3>
+                    <p class="text-gray-400 font-light">Innovation & Performance</p>
+                </div>
+                <div class="glass-luxury luxury-card rounded-3xl p-8 text-center cursor-pointer">
+                    <i class="fas fa-tshirt text-6xl text-gold mb-6"></i>
+                    <h3 class="text-2xl font-bold mb-3">Mode</h3>
+                    <p class="text-gray-400 font-light">Élégance & Style</p>
+                </div>
+                <div class="glass-luxury luxury-card rounded-3xl p-8 text-center cursor-pointer">
+                    <i class="fas fa-home text-6xl text-gold mb-6"></i>
+                    <h3 class="text-2xl font-bold mb-3">Maison</h3>
+                    <p class="text-gray-400 font-light">Confort & Raffinement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters & Products -->
+    <section id="products" class="py-20 px-6 bg-gradient-to-b from-transparent via-black to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button class="filter-btn active" data-category="all">Tout</button>
+                    <button class="filter-btn" data-category="electronics">Électronique</button>
+                    <button class="filter-btn" data-category="fashion">Mode</button>
+                    <button class="filter-btn" data-category="home">Maison</button>
+                    <button class="filter-btn" data-category="sports">Sports</button>
+                </div>
+                <div class="relative w-full md:w-96">
+                    <input type="text" id="search-input" placeholder="Rechercher l'excellence..." class="pl-12">
+                    <i class="fas fa-search absolute left-4 top-4 text-gold"></i>
+                </div>
+            </div>
+
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- About / Why Choose Us -->
+    <section id="about" class="py-24 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl md:text-6xl font-bold mb-4">L'Art de l'<span class="text-gold">Excellence</span></h2>
+                <div class="decorative-line w-32 mx-auto my-6"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="glass-luxury rounded-3xl p-10 text-center luxury-card">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-full gold-gradient flex items-center justify-center">
+                        <i class="fas fa-shipping-fast text-3xl text-black"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Livraison Premium</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Expédition express sous 24h avec emballage luxueux et suivi en temps réel</p>
+                </div>
+                <div class="glass-luxury rounded-3xl p-10 text-center luxury-card">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-full gold-gradient flex items-center justify-center">
+                        <i class="fas fa-shield-check text-3xl text-black"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Authenticité Garantie</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Chaque produit est vérifié et certifié pour votre tranquillité d'esprit</p>
+                </div>
+                <div class="glass-luxury rounded-3xl p-10 text-center luxury-card">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-full gold-gradient flex items-center justify-center">
+                        <i class="fas fa-concierge-bell text-3xl text-black"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Conciergerie 24/7</h3>
+                    <p class="text-gray-400 font-light leading-relaxed">Un service client dédié à votre écoute à tout moment de la journée</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4">Restons <span class="text-gold">Connectés</span></h2>
+                <div class="decorative-line w-32 mx-auto my-6"></div>
+                <p class="text-gray-400 text-lg font-light">Notre équipe est à votre service</p>
+            </div>
+            
+            <div class="glass-luxury rounded-3xl p-10">
+                <form id="contact-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="text" name="name" placeholder="Votre nom" required>
+                        <input type="email" name="email" placeholder="Votre email" required>
+                    </div>
+                    <input type="text" name="subject" placeholder="Sujet" required>
+                    <textarea name="message" rows="6" placeholder="Votre message" required></textarea>
+                    <button type="submit" class="w-full py-5 gold-gradient rounded-full font-bold text-lg text-black btn-luxury">
+                        ENVOYER LE MESSAGE
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center">
+                            <i class="fas fa-gem text-black"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gold">NEXUS LUXURY</span>
+                    </div>
+                    <p class="text-gray-400 font-light leading-relaxed">L'excellence à portée de main</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-6 tracking-wider">BOUTIQUE</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li><a href="#products" class="hover:text-gold transition font-light">Collections</a></li>
+                        <li><a href="#" class="hover:text-gold transition font-light">Nouveautés</a></li>
+                        <li><a href="#" class="hover:text-gold transition font-light">Exclusivités</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-6 tracking-wider">SERVICE</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li><a href="#contact" class="hover:text-gold transition font-light">Contact</a></li>
+                        <li><a href="#" class="hover:text-gold transition font-light">Livraison</a></li>
+                        <li><a href="#" class="hover:text-gold transition font-light">Retours</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-6 tracking-wider">SUIVEZ-NOUS</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-12 h-12 glass-luxury rounded-full flex items-center justify-center hover:border-gold transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 glass-luxury rounded-full flex items-center justify-center hover:border-gold transition">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 glass-luxury rounded-full flex items-center justify-center hover:border-gold transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="decorative-line mb-8"></div>
+            <div class="text-center text-gray-500 font-light text-sm tracking-wider">
+                <p>&copy; 2025 NEXUS LUXURY. TOUS DROITS RÉSERVÉS.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content p-10">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Votre Panier</h2>
+                <button id="close-cart" class="text-4xl hover:text-gold transition">&times;</button>
+            </div>
+            <div id="cart-items" class="space-y-4 mb-8 max-h-96 overflow-y-auto">
+                <!-- Cart items -->
+            </div>
+            <div class="border-t border-gray-800 pt-6">
+                <div class="flex justify-between text-2xl font-bold mb-6">
+                    <span>Total</span>
+                    <span id="cart-total" class="text-gold">0.00€</span>
+                </div>
+                <button id="checkout-btn" class="w-full py-5 gold-gradient rounded-full font-bold text-lg text-black btn-luxury">
+                    PROCÉDER AU PAIEMENT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content p-10">
+            <button id="close-product" class="absolute top-6 right-6 text-4xl hover:text-gold transition z-10">&times;</button>
+            <div id="product-detail"></div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
